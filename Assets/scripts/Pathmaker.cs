@@ -11,16 +11,28 @@ using UnityEngine;
 
 public class Pathmaker : MonoBehaviour {
 
-// STEP 2: ============================================================================================
-// translate the pseudocode below
+    // STEP 2: ============================================================================================
+    // translate the pseudocode below
 
-//	DECLARE CLASS MEMBER VARIABLES:
-//	Declare a private integer called counter that starts at 0; 		// counter var will track how many floor tiles I've instantiated
-//	Declare a public Transform called floorPrefab, assign the prefab in inspector;
-//	Declare a public Transform called pathmakerSpherePrefab, assign the prefab in inspector; 		// you'll have to make a "pathmakerSphere" prefab later
+    //	DECLARE CLASS MEMBER VARIABLES:
+    //	Declare a private integer called counter that starts at 0; 		// counter var will track how many floor tiles I've instantiated
+    //	Declare a public Transform called floorPrefab, assign the prefab in inspector;
+    //	Declare a public Transform called pathmakerSpherePrefab, assign the prefab in inspector; 		// you'll have to make a "pathmakerSphere" prefab later
+    private float pathCounter = 0;
+    private float randPathmakerLife;
+    //public Transform floorPrefab;
+    public Transform blankPrefab;
+    public Transform minePrefab;
+    public Transform questionPrefab;
+    public Transform flagPrefab;
+    public Transform pathmakerSpherePrefab;
+    public static int globalTileCount;
 
+    void Start () {
+        randPathmakerLife = Random.Range(30.0f, 65.0f);
+    }
 
-	void Update () {
+    void Update () {
 //		If counter is less than 50, then:
 //			Generate a random number from 0.0f to 1.0f;
 //			If random number is less than 0.25f, then rotate myself 90 degrees;
@@ -33,6 +45,41 @@ public class Pathmaker : MonoBehaviour {
 //			Increment counter;
 //		Else:
 //			Destroy my game object; 		// self destruct if I've made enough tiles already
+        if (globalTileCount < 500) {
+            if (pathCounter < randPathmakerLife) {
+                float randNum = Random.Range(0.0f, 1.0f);
+                if (randNum < 0.15f) {
+                    transform.Rotate(0, 90, 0);
+                } else if (randNum < 0.3f && randNum > 0.15f) {
+                    transform.Rotate(0, -90, 0);
+                } else if (randNum > 0.98f) {
+                    Instantiate(pathmakerSpherePrefab.gameObject, new Vector3(gameObject.transform.position.x, 0f, gameObject.transform.position.z), gameObject.transform.rotation);
+                
+                }
+
+                // [Insert randoms and cases for different types of tiles!!! (also want to do minesweeper tiles, so, question mark, mine, flag, and blank)]
+                float randTile = Random.Range(0.0f, 1.0f);
+                if (randTile < 0.03f) {
+                    Instantiate(minePrefab.gameObject, new Vector3(gameObject.transform.position.x, 0f, gameObject.transform.position.z), gameObject.transform.rotation);
+                } else if (randTile < 0.10f && randTile > 0.03f) {
+                    Instantiate(questionPrefab.gameObject, new Vector3(gameObject.transform.position.x, 0f, gameObject.transform.position.z), gameObject.transform.rotation);
+                } else if (randTile < 0.17f && randTile > 0.10f) {
+                    Instantiate(flagPrefab.gameObject, new Vector3(gameObject.transform.position.x, 0f, gameObject.transform.position.z), gameObject.transform.rotation);
+                } else { 
+                    Instantiate(blankPrefab.gameObject, new Vector3(gameObject.transform.position.x, 0f, gameObject.transform.position.z), gameObject.transform.rotation); 
+                }
+                transform.position += transform.forward * 5;
+                pathCounter += 1;
+
+            } else {
+                Destroy(this.gameObject);
+            } 
+            globalTileCount += 1;
+            Debug.Log(globalTileCount);
+        } else {
+            Destroy(this.gameObject);
+        }
+
 	}
 
 } // end of class scope
@@ -44,14 +91,15 @@ public class Pathmaker : MonoBehaviour {
 
 // STEP 3: =====================================================================================
 // implement, test, and stabilize the system
-
-//	IMPLEMENT AND TEST:
-//	- save your scene!!! the code could potentially be infinite / exponential, and crash Unity
-//	- put Pathmaker.cs on a sphere, configure all the prefabs in the Inspector, and test it to make sure it works
-//	STABILIZE: 
-//	- code it so that all the Pathmakers can only spawn a grand total of 500 tiles in the entire world; how would you do that?
-//	- (hint: declare a "public static int" and have each Pathmaker check this "globalTileCount", somewhere in your code? if there are already enough tiles, then maybe the Pathmaker could Destroy my game object
-
+//  IMPLEMENT AND TEST:
+//  - save your scene!!! the code could potentially be infinite / exponential, and crash Unity
+//  - put Pathmaker.cs on a sphere, configure all the prefabs in the Inspector, and test it to make sure it works
+//  STABILIZE: 
+//  - code it so that all the Pathmakers can only spawn a grand total of 500 tiles in the entire world; how would you do that?
+//          - hint 1: a "static" variable is like a global variable, there's only 1 instance of that variable shared across the entire game / all objects
+//          - hint 2: declare a "public static int" counter, increment each time you instantiate a floor tile... like "globalTileCount++"
+//          - hint 3: if there are already too many tiles, then self-destruct without spawning new floor tiles... like "if(globalTileCount > 500)" ... "Destroy(gameObject);"
+//          - note: a static var will persist beyond scene changes! you have to reset the variable manually!
 
 
 // STEP 4: ======================================================================================
